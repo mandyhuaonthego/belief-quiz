@@ -1,0 +1,658 @@
+<!DOCTYPE html>
+<html lang="zh-TW">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>你把力量交給了誰？</title>
+<link href="https://fonts.googleapis.com/css2?family=Noto+Serif+TC:wght@300;400;600&family=Cormorant+Garamond:ital,wght@0,300;0,400;1,300&display=swap" rel="stylesheet">
+<style>
+  :root {
+    --cream: #F5F0E8;
+    --warm-white: #FAF7F2;
+    --charcoal: #2A2520;
+    --muted: #8A7F74;
+    --accent: #C4956A;
+    --accent-light: #E8D5BC;
+    --line-color: #D4C9B8;
+  }
+
+  * { margin: 0; padding: 0; box-sizing: border-box; }
+
+  body {
+    background: var(--warm-white);
+    color: var(--charcoal);
+    font-family: 'Noto Serif TC', serif;
+    min-height: 100vh;
+    overflow-x: hidden;
+  }
+
+  /* INTRO SCREEN */
+  #intro {
+    min-height: 100vh;
+    display: flex;
+    flex-direction: column;
+    align-items: center;
+    justify-content: center;
+    padding: 48px 32px;
+    text-align: center;
+    position: relative;
+  }
+
+  #intro::before {
+    content: '';
+    position: fixed;
+    top: 0; left: 0; right: 0; bottom: 0;
+    background: 
+      radial-gradient(ellipse at 20% 20%, rgba(196,149,106,0.08) 0%, transparent 60%),
+      radial-gradient(ellipse at 80% 80%, rgba(196,149,106,0.06) 0%, transparent 60%);
+    pointer-events: none;
+  }
+
+  .mandy-tag {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 13px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 32px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.2s;
+  }
+
+  .intro-title {
+    font-size: clamp(28px, 7vw, 42px);
+    font-weight: 300;
+    line-height: 1.4;
+    letter-spacing: 2px;
+    margin-bottom: 16px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.4s;
+  }
+
+  .intro-title em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  .intro-subtitle {
+    font-size: 14px;
+    color: var(--muted);
+    line-height: 1.8;
+    max-width: 320px;
+    margin: 0 auto 48px;
+    font-weight: 300;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.6s;
+  }
+
+  .divider {
+    width: 40px;
+    height: 1px;
+    background: var(--accent);
+    margin: 0 auto 48px;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.7s;
+  }
+
+  .start-btn {
+    background: var(--charcoal);
+    color: var(--cream);
+    border: none;
+    padding: 16px 48px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px;
+    letter-spacing: 3px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    opacity: 0;
+    animation: fadeUp 0.8s ease forwards 0.8s;
+  }
+
+  .start-btn:hover {
+    background: var(--accent);
+    transform: translateY(-2px);
+  }
+
+  /* QUIZ SCREEN */
+  #quiz {
+    display: none;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .progress-bar {
+    position: fixed;
+    top: 0; left: 0;
+    height: 2px;
+    background: var(--accent);
+    transition: width 0.4s ease;
+    z-index: 100;
+  }
+
+  .quiz-inner {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 80px 32px 48px;
+  }
+
+  .question-counter {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    margin-bottom: 40px;
+    text-transform: uppercase;
+  }
+
+  .question-text {
+    font-size: clamp(18px, 4.5vw, 22px);
+    font-weight: 300;
+    line-height: 1.7;
+    letter-spacing: 1px;
+    margin-bottom: 40px;
+    min-height: 80px;
+  }
+
+  .options {
+    display: flex;
+    flex-direction: column;
+    gap: 12px;
+  }
+
+  .option {
+    padding: 18px 24px;
+    border: 1px solid var(--line-color);
+    background: transparent;
+    color: var(--charcoal);
+    font-family: 'Noto Serif TC', serif;
+    font-size: 14px;
+    line-height: 1.6;
+    text-align: left;
+    cursor: pointer;
+    transition: all 0.25s ease;
+    letter-spacing: 0.5px;
+    position: relative;
+    overflow: hidden;
+  }
+
+  .option::before {
+    content: '';
+    position: absolute;
+    left: 0; top: 0; bottom: 0;
+    width: 0;
+    background: var(--accent-light);
+    transition: width 0.25s ease;
+    z-index: 0;
+  }
+
+  .option span {
+    position: relative;
+    z-index: 1;
+  }
+
+  .option:hover::before { width: 100%; }
+  .option:hover { border-color: var(--accent); }
+
+  .option.selected {
+    border-color: var(--accent);
+    background: var(--accent-light);
+  }
+
+  /* RESULT SCREEN */
+  #result {
+    display: none;
+    min-height: 100vh;
+    padding: 0;
+  }
+
+  .result-inner {
+    max-width: 480px;
+    margin: 0 auto;
+    padding: 64px 32px 80px;
+  }
+
+  .result-label {
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 12px;
+    letter-spacing: 3px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 24px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.1s;
+  }
+
+  .result-title {
+    font-size: clamp(22px, 5.5vw, 28px);
+    font-weight: 300;
+    line-height: 1.5;
+    letter-spacing: 1.5px;
+    margin-bottom: 8px;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.2s;
+  }
+
+  .result-title em {
+    font-style: normal;
+    color: var(--accent);
+  }
+
+  /* Percentage bars */
+  .percentage-section {
+    margin: 32px 0;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.3s;
+  }
+
+  .pct-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--muted);
+    text-transform: uppercase;
+    margin-bottom: 16px;
+  }
+
+  .bar-row {
+    margin-bottom: 14px;
+  }
+
+  .bar-name {
+    font-size: 12px;
+    color: var(--charcoal);
+    margin-bottom: 6px;
+    display: flex;
+    justify-content: space-between;
+    letter-spacing: 0.5px;
+  }
+
+  .bar-track {
+    height: 3px;
+    background: var(--line-color);
+    overflow: hidden;
+  }
+
+  .bar-fill {
+    height: 100%;
+    background: var(--accent);
+    width: 0;
+    transition: width 1s ease;
+  }
+
+  .bar-fill.highlight {
+    background: var(--charcoal);
+  }
+
+  .result-divider {
+    width: 32px;
+    height: 1px;
+    background: var(--accent);
+    margin: 32px 0;
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.4s;
+  }
+
+  .result-body {
+    opacity: 0;
+    animation: fadeUp 0.6s ease forwards 0.5s;
+  }
+
+  .result-desc {
+    font-size: 15px;
+    line-height: 2;
+    font-weight: 300;
+    color: var(--charcoal);
+    margin-bottom: 32px;
+    white-space: pre-line;
+  }
+
+  .action-block {
+    border-left: 2px solid var(--accent);
+    padding-left: 20px;
+    margin-bottom: 32px;
+  }
+
+  .action-label {
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    text-transform: uppercase;
+    margin-bottom: 10px;
+  }
+
+  .action-text {
+    font-size: 14px;
+    line-height: 1.9;
+    font-weight: 300;
+    white-space: pre-line;
+  }
+
+  .mandy-quote {
+    background: var(--cream);
+    padding: 24px 28px;
+    margin-bottom: 40px;
+    position: relative;
+  }
+
+  .mandy-quote::before {
+    content: '曼菁小語';
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 11px;
+    letter-spacing: 2px;
+    color: var(--accent);
+    display: block;
+    margin-bottom: 12px;
+    text-transform: uppercase;
+  }
+
+  .mandy-quote p {
+    font-size: 14px;
+    line-height: 1.9;
+    font-weight: 300;
+    color: var(--charcoal);
+    white-space: pre-line;
+  }
+
+  .retry-btn {
+    background: transparent;
+    color: var(--muted);
+    border: 1px solid var(--line-color);
+    padding: 14px 36px;
+    font-family: 'Noto Serif TC', serif;
+    font-size: 12px;
+    letter-spacing: 2px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+    width: 100%;
+  }
+
+  .retry-btn:hover {
+    border-color: var(--accent);
+    color: var(--accent);
+  }
+
+  .copyright {
+    text-align: center;
+    font-family: 'Cormorant Garamond', serif;
+    font-style: italic;
+    font-size: 10px;
+    letter-spacing: 1.5px;
+    color: var(--line-color);
+    padding: 24px 0 8px;
+  }
+
+  @keyframes fadeUp {
+    from { opacity: 0; transform: translateY(16px); }
+    to { opacity: 1; transform: translateY(0); }
+  }
+
+  .fade-enter {
+    animation: fadeUp 0.4s ease forwards;
+  }
+</style>
+</head>
+<body>
+
+<!-- INTRO -->
+<div id="intro">
+  <div class="mandy-tag">曼菁 × 自我探索</div>
+  <h1 class="intro-title">你把力量<br><em>交給了誰？</em></h1>
+  <div class="divider"></div>
+  <p class="intro-subtitle">找回為自己負責的那把鑰匙<br>6個問題，看見你的限制信念從哪裡來</p>
+  <button class="start-btn" onclick="startQuiz()">開始測驗</button>
+</div>
+
+<!-- QUIZ -->
+<div id="quiz">
+  <div class="progress-bar" id="progressBar"></div>
+  <div class="quiz-inner">
+    <div class="question-counter" id="questionCounter">Q1 / 6</div>
+    <div class="question-text" id="questionText"></div>
+    <div class="options" id="optionsContainer"></div>
+  </div>
+</div>
+
+<!-- RESULT -->
+<div id="result">
+  <div class="result-inner">
+    <div class="result-label">你的測驗結果</div>
+    <div class="result-title" id="resultTitle"></div>
+
+    <div class="percentage-section">
+      <div class="pct-label">限制信念分佈</div>
+      <div id="barsContainer"></div>
+    </div>
+
+    <div class="result-divider"></div>
+
+    <div class="result-body">
+      <div class="result-desc" id="resultDesc"></div>
+      <div class="action-block">
+        <div class="action-label">收回來的第一步</div>
+        <div class="action-text" id="resultAction"></div>
+      </div>
+      <div class="mandy-quote">
+        <p id="resultQuote"></p>
+      </div>
+      <button class="retry-btn" onclick="resetQuiz()">重新測驗</button>
+      <div class="copyright">© mandyhuaonthego 版權所有</div>
+    </div>
+  </div>
+</div>
+
+<script>
+const questions = [
+  {
+    text: "有件事很想做，但沒什麼把握，你腦子裡第一句話是？",
+    options: [
+      { text: "再等等，準備好一點再說", type: "A" },
+      { text: "不知道別人看了會怎麼想", type: "B" },
+      { text: "上次試過，感覺不太對", type: "C" },
+      { text: "這種事，我可能不是那種人", type: "D" }
+    ]
+  },
+  {
+    text: "做錯一件事，你最常跟自己說的是？",
+    options: [
+      { text: "就說了要再準備久一點", type: "A" },
+      { text: "完了，別人一定覺得我很差", type: "B" },
+      { text: "果然，又是這樣", type: "C" },
+      { text: "我就是這樣的人，沒辦法", type: "D" }
+    ]
+  },
+  {
+    text: "有人稱讚你，你心裡第一個聲音是？",
+    options: [
+      { text: "他只是客氣，我還差得遠", type: "A" },
+      { text: "還好，至少別人覺得還可以", type: "B" },
+      { text: "上次被說好，後來還不是出包", type: "C" },
+      { text: "我真的有那麼好嗎？我不確定", type: "D" }
+    ]
+  },
+  {
+    text: "上一次放棄一件事，心裡真正的理由是？",
+    options: [
+      { text: "時機還不對，再等等看", type: "A" },
+      { text: "蠻丟臉的", type: "B" },
+      { text: "太累了", type: "C" },
+      { text: "我不是那塊料", type: "D" }
+    ]
+  },
+  {
+    text: "有人找你一起做沒試過的事，你心裡浮現的是？",
+    options: [
+      { text: "找我？要確定欸", type: "A" },
+      { text: "做不好會被笑吧", type: "B" },
+      { text: "萬一搞砸，難不成是我造成的", type: "C" },
+      { text: "這種事我做不來", type: "D" }
+    ]
+  },
+  {
+    text: "現在有個機會，你只有五成準備好，你會？",
+    options: [
+      { text: "等有七成把握再做", type: "A" },
+      { text: "先看看別人怎麼做再決定", type: "B" },
+      { text: "上次這樣衝進去結果很慘", type: "C" },
+      { text: "不要吧，五成把握根本在賭一把", type: "D" }
+    ]
+  }
+];
+
+const results = {
+  A: {
+    title: "你把力量交給了「完美」",
+    desc: "你不是不想行動\n你只是在等一個不會出錯的自己出現\n但那個自己，永遠都還差一點\n\n你的力量一直都在\n只是被「再等等」借走了",
+    action: "下一次那個「再等等」出現的時候\n問自己一句——\n哪一天才是完美呢？",
+    quote: "根本沒有準備好的那一天\n只有決定開始的那一天"
+  },
+  B: {
+    title: "你把力量交給了「別人的眼光」",
+    desc: "你很清楚自己想要什麼\n但每次行動前都要先過一關——\n他們會怎麼看我？\n\n那一關，比你想的更耗能",
+    action: "做一件小事，不要告訴任何人\n只是你跟你自己知道",
+    quote: "你在意的那些人\n其實沒有那麼在意你"
+  },
+  C: {
+    title: "你把力量交給了「過去的失敗經驗」",
+    desc: "你試過\n你受過傷\n所以你學會了保護自己\n\n但那道保護，也把你擋在門外了",
+    action: "失敗是誰定義的呢？\n如果你還是願意再試一次\n這件事本身，就是成功",
+    quote: "你願意再試的勇氣\n不知道已經贏過多少人了"
+  },
+  D: {
+    title: "你把力量交給了「我本來就不行」",
+    desc: "不是沒機會\n是在機會來之前\n你已經替自己預判了結果\n\n這個聲音是後天習得的，不是天生的\n悲觀者永遠正確\n只是都很正確，然後呢？",
+    action: "去做一件你覺得自己不行的小事\n沒做成很正常\n萬一做到了呢？\n試試",
+    quote: "不要唱衰自己，要站在自己這邊\n只要你能把能量對齊\n凡事都能心想事成"
+  }
+};
+
+const typeNames = {
+  A: "完美限制",
+  B: "眼光限制",
+  C: "經驗限制",
+  D: "預判限制"
+};
+
+let current = 0;
+let scores = { A: 0, B: 0, C: 0, D: 0 };
+
+function startQuiz() {
+  document.getElementById('intro').style.display = 'none';
+  document.getElementById('quiz').style.display = 'block';
+  renderQuestion();
+}
+
+function renderQuestion() {
+  const q = questions[current];
+  const counter = document.getElementById('questionCounter');
+  const text = document.getElementById('questionText');
+  const opts = document.getElementById('optionsContainer');
+  const bar = document.getElementById('progressBar');
+
+  counter.textContent = `Q${current + 1} / ${questions.length}`;
+  bar.style.width = `${((current) / questions.length) * 100}%`;
+
+  // Build new options immediately (hidden), then fade in
+  text.style.transition = 'none';
+  opts.style.transition = 'none';
+  text.style.opacity = 0;
+  opts.style.opacity = 0;
+  opts.innerHTML = '';
+
+  text.textContent = q.text;
+  q.options.forEach(opt => {
+    const btn = document.createElement('button');
+    btn.className = 'option'; // no 'selected' class
+    btn.innerHTML = `<span>${opt.text}</span>`;
+    btn.onclick = () => selectOption(opt.type, btn);
+    opts.appendChild(btn);
+  });
+
+  // Force reflow, then fade in
+  requestAnimationFrame(() => {
+    requestAnimationFrame(() => {
+      text.style.transition = 'opacity 0.3s ease';
+      opts.style.transition = 'opacity 0.3s ease';
+      text.style.opacity = 1;
+      opts.style.opacity = 1;
+    });
+  });
+}
+
+function selectOption(type, btn) {
+  document.querySelectorAll('.option').forEach(o => o.classList.remove('selected'));
+  btn.classList.add('selected');
+  scores[type]++;
+
+  // Fade out immediately, then switch question
+  const opts = document.getElementById('optionsContainer');
+  const text = document.getElementById('questionText');
+  opts.style.transition = 'opacity 0.2s ease';
+  text.style.transition = 'opacity 0.2s ease';
+  opts.style.opacity = 0;
+  text.style.opacity = 0;
+
+  setTimeout(() => {
+    opts.innerHTML = '';
+    current++;
+    if (current < questions.length) {
+      renderQuestion();
+    } else {
+      showResult();
+    }
+  }, 250);
+}
+
+function showResult() {
+  document.getElementById('quiz').style.display = 'none';
+  document.getElementById('result').style.display = 'block';
+
+  const total = Object.values(scores).reduce((a, b) => a + b, 0);
+  const winner = Object.entries(scores).sort((a, b) => b[1] - a[1])[0][0];
+  const r = results[winner];
+
+  document.getElementById('resultTitle').innerHTML = r.title.replace('「', '<em>「').replace('」', '」</em>');
+  document.getElementById('resultDesc').textContent = r.desc;
+  document.getElementById('resultAction').textContent = r.action;
+  document.getElementById('resultQuote').textContent = r.quote;
+
+  // Build bars
+  const container = document.getElementById('barsContainer');
+  container.innerHTML = '';
+  const order = ['A', 'B', 'C', 'D'];
+  order.forEach(key => {
+    const pct = Math.round((scores[key] / total) * 100);
+    const row = document.createElement('div');
+    row.className = 'bar-row';
+    row.innerHTML = `
+      <div class="bar-name">
+        <span>${typeNames[key]}</span>
+        <span>${pct}%</span>
+      </div>
+      <div class="bar-track">
+        <div class="bar-fill ${key === winner ? 'highlight' : ''}" data-pct="${pct}"></div>
+      </div>
+    `;
+    container.appendChild(row);
+  });
+
+  setTimeout(() => {
+    document.querySelectorAll('.bar-fill').forEach(bar => {
+      bar.style.width = bar.dataset.pct + '%';
+    });
+  }, 600);
+
+  window.scrollTo(0, 0);
+}
+
+function resetQuiz() {
+  current = 0;
+  scores = { A: 0, B: 0, C: 0, D: 0 };
+  document.getElementById('result').style.display = 'none';
+  document.getElementById('intro').style.display = 'flex';
+}
+</script>
+</body>
+</html>
